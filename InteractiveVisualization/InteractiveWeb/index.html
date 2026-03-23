@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Attitude Viewer</title>
+    <style>
+        :root {
+            --primary-bg: #f8f9fa;
+            --sidebar-bg: #2c3e50;
+            --sidebar-hover: #34495e;
+            --sidebar-active: #3498db;
+            --text-light: #ecf0f1;
+            --text-dark: #2c3e50;
+        }
+
+        html {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            overflow: hidden;
+            background-color: var(--primary-bg);
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+        .menu-group {
+            padding: 15px 0 5px 20px;
+            font-size: 0.85rem;
+            color: #bdc3c7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .menu-item {
+            padding: 12px 20px 12px 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover {
+            background-color: var(--sidebar-hover);
+            border-left-color: #7f8c8d;
+        }
+
+        .menu-item.active {
+            background-color: var(--sidebar-hover);
+            border-left-color: var(--sidebar-active);
+            color: #fff;
+            font-weight: 500;
+        }
+
+        /* Content Area Styling */
+        .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .topbar {
+            height: 60px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            z-index: 5;
+        }
+
+        .iframe-container {
+            flex-grow: 1;
+            position: relative;
+            background-color: transparent;
+        }
+
+        iframe {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: calc(100% - 30px);
+            height: calc(100% - 30px);
+            border: none;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            display: block;
+        }
+
+        /* Empty State */
+        .empty-state {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #7f8c8d;
+            display: none;
+        }
+
+        .empty-state h2 {
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">Interactive Views</div>
+
+        <!-- DSB Group -->
+        <div class="menu-group">DSB (Dynamics)</div>
+        <div class="menu-item active" onclick="loadPlot(this, 'DSB', 'ABC', 'DSB_ABC_Interactive.html')">ABC Plot</div>
+        <div class="menu-item" onclick="loadPlot(this, 'DSB', 'Grid', 'DSB_Grid_SCurves_Interactive.html')">Grid S-Curves</div>
+        <div class="menu-item" onclick="loadPlot(this, 'DSB', 'Human Baseline', 'DSB_HumanBaseline_Interactive.html')">Human Baseline</div>
+
+        <!-- FIP Group -->
+        <div class="menu-group">FIP (Financial)</div>
+        <div class="menu-item" onclick="loadPlot(this, 'FIP', 'ABC', 'FIP_ABC_Interactive.html')">ABC Plot</div>
+        <div class="menu-item" onclick="loadPlot(this, 'FIP', 'Grid', 'FIP_Grid_SCurves_Interactive.html')">Grid S-Curves</div>
+        <div class="menu-item" onclick="loadPlot(this, 'FIP', 'Human Baseline', 'FIP_HumanBaseline_Interactive.html')">Human Baseline</div>
+
+        <!-- TPB Group -->
+        <div class="menu-group">TPB (Triage)</div>
+        <div class="menu-item" onclick="loadPlot(this, 'TPB', 'ABC', 'TPB_ABC_Interactive.html')">ABC Plot</div>
+        <div class="menu-item" onclick="loadPlot(this, 'TPB', 'Grid', 'TPB_Grid_SCurves_Interactive.html')">Grid S-Curves</div>
+        <div class="menu-item" onclick="loadPlot(this, 'TPB', 'Human Baseline', 'TPB_HumanBaseline_Interactive.html')">Human Baseline</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="topbar" id="topbar-title">
+            DSB - ABC Plot
+        </div>
+        <div class="iframe-container">
+            <div class="empty-state" id="empty-state">
+                <h2>Select a plot from the sidebar to view.</h2>
+            </div>
+            <iframe id="plot-frame" src="DSB_ABC_Interactive.html" title="Interactive Plot Viewer"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function loadPlot(element, experiment, type, filename) {
+            // Update Active State on Sidebar
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+
+            // Update Topbar Title
+            document.getElementById('topbar-title').innerText = `${experiment} - ${type} Plot`;
+
+            // Load iframe
+            const iframe = document.getElementById('plot-frame');
+            const emptyState = document.getElementById('empty-state');
+            
+            iframe.style.display = 'block';
+            emptyState.style.display = 'none';
+            iframe.src = filename;
+        }
+    </script>
+</body>
+</html>

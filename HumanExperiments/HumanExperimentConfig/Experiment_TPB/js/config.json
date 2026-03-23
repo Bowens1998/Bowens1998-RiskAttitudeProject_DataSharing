@@ -1,0 +1,82 @@
+{
+  "session": "TPB-ESI-v2.3",
+  "max_ticks": 12,
+  "tick_range": [
+    9,
+    12
+  ],
+  "blocks": 1,
+  "trials_per_block": 8,
+  "seed": 1312,
+  "ui_defaults": {
+    "prevalence_high": 0.42,
+    "prevalence_low": 0.2,
+    "noise_low": 0.6,
+    "noise_high": 1.1,
+    "volatility_low": 0.06,
+    "volatility_high": 0.2,
+    "under_triage_penalty": -80.0,
+    "over_triage_penalty": -20.0
+  },
+  "dx_options": [
+    "Respiratory failure",
+    "Cardiac event",
+    "Massive hemorrhage",
+    "Infection / sepsis",
+    "Neurological event (stroke-like)",
+    "Stable / no acute condition"
+  ],
+  "patient_profiles": {
+    "ages": [
+      18,
+      25,
+      32,
+      40,
+      48,
+      56,
+      64,
+      72,
+      80,
+      88
+    ],
+    "comorbid_sets": [
+      [],
+      [
+        "Hypertension"
+      ],
+      [
+        "Diabetes"
+      ],
+      [
+        "COPD"
+      ],
+      [
+        "CAD"
+      ],
+      [
+        "CKD"
+      ],
+      [
+        "Hypertension",
+        "Diabetes"
+      ],
+      [
+        "COPD",
+        "CAD"
+      ],
+      [
+        "Immunosuppressed"
+      ],
+      [
+        "Anticoagulant use"
+      ]
+    ]
+  },
+  "ctx": {
+    "min_required_updates": 2,
+    "reminder_ticks": [
+      2,
+      -1
+    ]
+  }
+}

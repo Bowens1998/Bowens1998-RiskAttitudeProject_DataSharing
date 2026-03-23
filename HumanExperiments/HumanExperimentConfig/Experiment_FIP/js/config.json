@@ -1,0 +1,23 @@
+{
+  "session": "InvestTaskWebV1_1_1",
+  "ui_defaults": {
+    "T_trials": 10,
+    "W_window": 80,
+    "p_calm_to_turb": 0.12,
+    "p_turb_to_calm": 0.18,
+    "mu_L": 0.0008,
+    "mu_M": 0.0008,
+    "mu_H": 0.0008,
+    "sigma_calm_L": 0.006,
+    "sigma_calm_M": 0.01,
+    "sigma_calm_H": 0.016,
+    "sigma_turb_L": 0.014,
+    "sigma_turb_M": 0.022,
+    "sigma_turb_H": 0.034,
+    "rho_calm": 0.15,
+    "rho_turb": 0.65,
+    "trend_thresh": 0.02,
+    "alloc_step": 5,
+    "seed": 42
+  }
+}

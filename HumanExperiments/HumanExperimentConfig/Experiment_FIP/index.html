@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Financial Investment Task</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/tour.css">
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --danger: #EF4444;
+      --info: #0EA5E9;
+      --background: #F3F4F6;
+      --surface: #FFFFFF;
+      --text-main: #111827;
+      --text-muted: #6B7280;
+      --border: #E5E7EB;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      color: var(--text-main);
+      background: var(--background);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 16px 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    main {
+      padding: 32px 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+      flex-grow: 1;
+    }
+
+    h3 {
+      margin: 0 0 16px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .col {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    #toolbar {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #F9FAFB;
+      border-color: #D1D5DB;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      background: var(--text-muted);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Hidden Configuration Controls */
+    #controls_panel {
+      display: none;
+    }
+
+    input[type=range],
+    input[type=number] {
+      width: 100%;
+      accent-color: var(--primary);
+      margin: 8px 0;
+    }
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .asset-block {
+      background: var(--background);
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--surface);
+      margin-bottom: 12px;
+    }
+
+    .spark-wrap {
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .axis-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    canvas.spark {
+      width: 100%;
+      height: 220px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .tickbar {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .radio-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .radio-row input {
+      margin-right: 4px;
+    }
+
+    .alloc {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+      background: var(--background);
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+
+    .alloc .pill {
+      width: 16px;
+      text-align: center;
+      margin: 0;
+    }
+
+    .alloc input[type=range] {
+      flex: 1;
+    }
+
+    .alloc span[id^="vw"] {
+      width: 40px;
+      text-align: right;
+      font-weight: 600;
+    }
+
+    .lock-btn {
+      background: none;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px;
+      margin-left: 4px;
+      opacity: 0.4;
+      transition: all 0.2s;
+    }
+
+    .lock-btn:hover {
+      opacity: 0.8;
+      transform: scale(1.1);
+    }
+
+    .alloc input[type=range]:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #status {
+      text-align: center;
+      font-weight: 500;
+      color: var(--primary);
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    #error {
+      display: none;
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .sep {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-card {
+      background: var(--surface);
+      width: 90vw;
+      max-width: 1400px;
+      height: 85vh;
+      margin: auto;
+      padding: 32px;
+      border-radius: var(--radius);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transform: translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tutorial-slide {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tutorial-slide>div:last-of-type {
+      flex: 1;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0);
+    }
+
+    .modal-card h2 {
+      margin: 0 0 16px 0;
+      color: var(--text-main);
+    }
+
+    .modal-card p {
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .modal-card ul {
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 24px;
+      padding-left: 20px;
+    }
+
+    .modal-card li {
+      margin-bottom: 8px;
+    }
+
+    /* Instruction Side-Panel */
+    .instruction-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 300px;
+      height: 100vh;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      box-shadow: -4px 0 15px rgba(0, 0, 0, 0.05);
+      padding: 24px;
+      z-index: 40;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+    }
+
+    .instruction-panel.hidden {
+      transform: translateX(100%);
+    }
+
+    .instruction-panel h3 {
+      margin-top: 0;
+      color: var(--text-main);
+      font-size: 18px;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+
+    .instruction-panel ol {
+      padding-left: 20px;
+      color: var(--text-main);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .instruction-panel li {
+      margin-bottom: 12px;
+    }
+
+    .instruction-panel .f1-hint {
+      display: inline-block;
+      margin-top: 24px;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: var(--background);
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Instruction Side-Panel -->
+  <div id="instructionPanel" class="instruction-panel">
+    <h3>Task Instructions</h3>
+    <ol>
+      <li><strong>Select Trends:</strong> Look at the graphs for Index A, Index B, and Index C. Select whether you think
+        the trend is <strong>Up</strong>, <strong>Flat</strong>, or <strong>Down</strong>, and set your
+        <strong>Confidence</strong> level.
+      </li>
+      <li><strong>Overall Risk:</strong> Estimate the overall risk and turbulence in the market using the
+        <strong>Contextual Belief</strong> slider.
+      </li>
+      <li><strong>Allocate Assets:</strong> Adjust your allocations to Low, Medium, and High-Risk assets. They must sum
+        to 100%.</li>
+      <li><strong>Submit:</strong> Click the "Finalize Trial" button to lock in your choices and proceed to the next
+        trial.</li>
+    </ol>
+    <div class="f1-hint">
+      💡 Press <strong>F1</strong> anytime to hide or show this panel.
+    </div>
+  </div>
+
+  <header>
+    <h1>Financial Investment Task</h1>
+    <a href="../index.html" style="text-decoration:none;">
+      <button class="btn-secondary" style="padding: 8px 16px;">Exit</button>
+    </a>
+  </header>
+
+  <main>
+    <div id="status">Loading…</div>
+    <div id="error"></div>
+
+    <div id="toolbar">
+      <button id="startBtn" class="btn-primary" disabled>Start Task</button>
+      <button id="downloadBtn" class="btn-secondary" style="display:none;">Download Backup Data</button>
+    </div>
+
+    <!-- Hidden admin controls via cheat code -->
+    <div class="card" id="controls_panel">
+      <h3>Runtime Controls</h3>
+      <div class="controls" style="display: grid; grid-template-columns: repeat(3, minmax(260px, 1fr)); gap: 12px;">
+        <!-- Retaining all input IDs for JS compatibility -->
+        <div class="control" style="border: 1px solid var(--border); padding: 10px;"><label>Trials <span class="muted"
+              id="v_trials"></span></label><input id="T_trials" type="range" min="1" max="100" step="1" value="5">
+        </div>
+        <div class="control" style="border: 1px solid var(--border); padding: 10px;"><label>Window Length (W) <span
+              class="muted" id="v_W"></span></label><input id="W_window" type="range" min="40" max="200" step="5"></div>
+        <div class="control" style="border: 1px solid var(--border); padding: 10px;"><label>Trend Threshold <span
+              class="muted" id="v_thr"></span></label><input id="trend_thresh" type="range" min="0.005" max="0.06"
+            step="0.005"></div>
+        <div class="control" style="border: 1px solid var(--border); padding: 10px;"><label>Calm→Turb prob <span
+              class="muted" id="v_ct"></span></label><input id="p_calm_to_turb" type="range" min="0.02" max="0.40"
+            step="0.01"></div>
+        <div class="control" style="border: 1px solid var(--border); padding: 10px;"><label>Turb→Calm prob <span
+              class="muted" id="v_tc"></span></label><input id="p_turb_to_calm" type="range" min="0.02" max="0.40"
+            step="0.01"></div>
+        <div class="control" style="border: 1px solid var(--border); padding: 10px;"><label>ρ (calm) <span class="muted"
+              id="v_rhoc"></span></label><input id="rho_calm" type="range" min="0.00" max="0.60" step="0.01"></div>
+        <div class="control" style="border: 1px solid var(--border); padding: 10px;"><label>ρ (turb) <span class="muted"
+              id="v_rhot"></span></label><input id="rho_turb" type="range" min="0.10" max="0.95" step="0.01"></div>
+        <div class="control" style="border: 1px solid var(--border); padding: 10px;"><label>σ (calm): L/M/H</label>
+          <div class="row" style="gap:5px;"><input id="sigma_calm_L" type="number" step="0.001" min="0.001"><input
+              id="sigma_calm_M" type="number" step="0.001" min="0.001"><input id="sigma_calm_H" type="number"
+              step="0.001" min="0.001"></div>
+        </div>
+        <div class="control" style="border: 1px solid var(--border); padding: 10px;"><label>σ (turb): L/M/H</label>
+          <div class="row" style="gap:5px;"><input id="sigma_turb_L" type="number" step="0.001" min="0.001"><input
+              id="sigma_turb_M" type="number" step="0.001" min="0.001"><input id="sigma_turb_H" type="number"
+              step="0.001" min="0.001"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Experiment Interface -->
+    <div style="display: flex; flex-direction: column; gap: 24px; margin-top: 12px;">
+
+      <!-- STAGE A -->
+      <div class="card panel">
+        <h3>Stage A: Per-Asset Trend</h3>
+        <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
+          The charts below show price changes as a percentage. The central grey line marks 0% (no change).
+        </div>
+        <div class="grid3">
+          <div class="asset-block">
+            <div class="pill">INDEX A: Contains 1/3 of the market</div>
+            <div class="spark-wrap">
+              <canvas id="cL" class="spark"></canvas>
+              <div id="ticksL" class="tickbar"></div>
+            </div>
+            <div class="axis-label">Δ% vs. time (steps)</div>
+            <div class="radio-row">
+              <label><input type="radio" name="trendL" value="up"> Up</label>
+              <label><input type="radio" name="trendL" value="flat"> Flat</label>
+              <label><input type="radio" name="trendL" value="down"> Down</label>
+            </div>
+            <div style="font-size:13px; font-weight:500;">Confidence <input id="confL" type="range" min="0" max="100"
+                value="50"></div>
+          </div>
+          <div class="asset-block">
+            <div class="pill" style="color:var(--info); border-color:var(--info);">INDEX B: contains 1/3 of the
+              market
+              trend</div>
+            <div class="spark-wrap">
+              <canvas id="cM" class="spark"></canvas>
+              <div id="ticksM" class="tickbar"></div>
+            </div>
+            <div class="axis-label">Δ% vs. time (steps)</div>
+            <div class="radio-row">
+              <label><input type="radio" name="trendM" value="up"> Up</label>
+              <label><input type="radio" name="trendM" value="flat"> Flat</label>
+              <label><input type="radio" name="trendM" value="down"> Down</label>
+            </div>
+            <div style="font-size:13px; font-weight:500;">Confidence <input id="confM" type="range" min="0" max="100"
+                value="50"></div>
+          </div>
+          <div class="asset-block">
+            <div class="pill" style="color:var(--danger); border-color:var(--danger);">INDEX C: contains 1/3 of the
+              market trend</div>
+            <div class="spark-wrap">
+              <canvas id="cH" class="spark"></canvas>
+              <div id="ticksH" class="tickbar"></div>
+            </div>
+            <div class="axis-label">Δ% vs. time (steps)</div>
+            <div class="radio-row">
+              <label><input type="radio" name="trendH" value="up"> Up</label>
+              <label><input type="radio" name="trendH" value="flat"> Flat</label>
+              <label><input type="radio" name="trendH" value="down"> Down</label>
+            </div>
+            <div style="font-size:13px; font-weight:500;">Confidence <input id="confH" type="range" min="0" max="100"
+                value="50"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE B -->
+      <div class="card panel">
+        <h3>Stage B: Market Risk</h3>
+        <div style="font-size:14px; margin-bottom:8px;">How risky does the market feel right now?</div>
+        <div
+          style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted); max-width: 600px;">
+          <span>Calm</span><span>Turbulent</span>
+        </div>
+        <input style="max-width: 600px;" id="ctxRisk" type="range" min="0" max="100" value="50">
+        <div class="muted" id="ctxLabel" style="font-weight:500; margin-top: 8px;">Reported: 50 / 100</div>
+      </div>
+
+      <!-- STAGE C -->
+      <div class="card panel">
+        <h3>Stage C: Portfolio Allocation</h3>
+        <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Distribute your funds across the three
+          assets. Total will automatically balance to 100%.</div>
+
+        <div style="max-width: 600px;">
+          <div class="alloc">
+            <div class="pill" style="width: auto;">Low risk</div><input id="wL" type="range" min="0" max="100" step="1"
+              value="33"><span id="vwL">33%</span>
+            <button id="lockL" class="lock-btn">🔓</button>
+          </div>
+          <div class="alloc">
+            <div class="pill" style="width: auto; color:var(--info); border-color:var(--info);">Medium Risk</div><input
+              id="wM" type="range" min="0" max="100" step="1" value="33"><span id="vwM">33%</span>
+            <button id="lockM" class="lock-btn">🔓</button>
+          </div>
+          <div class="alloc">
+            <div class="pill" style="width: auto; color:var(--danger); border-color:var(--danger);">High Risk</div>
+            <input id="wH" type="range" min="0" max="100" step="1" value="34"><span id="vwH">34%</span>
+            <button id="lockH" class="lock-btn">🔓</button>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <button id="submitTrial" class="btn-primary" style="width:100%; max-width: 600px;">Finalize Trial</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Task Complete Modal -->
+  <div id="completeModal" class="modal-overlay">
+    <div class="modal-card" style="text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 16px;">💹</div>
+      <h2>Session Complete!</h2>
+      <p>Thank you for completing the Financial Investment task. Your decisions have been recorded.</p>
+      <div id="saveStatus" style="font-weight:600; color:var(--primary); margin:24px 0;">Saving to database...</div>
+      <div id="waitMsg" style="color:var(--text-muted); font-size:14px; margin-top:16px;">
+        Please do not close this window until the save is complete.
+      </div>
+      <a href="../index.html" id="returnBtn" style="text-decoration:none; display:none; margin-top:16px;">
+        <button class="btn-secondary">Return to Main Menu</button>
+      </a>
+      <div id="autoReturnMsg" style="display:none; margin-top:12px; color:var(--text-muted); font-size:14px;"></div>
+    </div>
+  </div>
+
+  <script src="../assets/subject-id.js"></script>
+  <script src="../assets/stage-hint.js"></script>
+  <script src="../assets/tour.js?v=2.0"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/app_v111.js?v=2.0"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const steps = [
+        {
+          target: '#startBtn',
+          title: 'Welcome to the Investment Simulator',
+          content: 'Click <b>Start Task</b> to begin your first trial.',
+          placement: 'bottom',
+          onNext: () => {
+            const btn = document.getElementById('startBtn');
+            if (btn && !btn.disabled) btn.click();
+          }
+        },
+        {
+          target: '.asset-block',
+          title: 'Stage A: Predict & Set Confidence',
+          content: 'Now, select whether you think the price will go <b>Up, Flat, or Down</b> next. Then, drag the <b>Confidence slider</b> to indicate how sure you are. Give both a try now!',
+          placement: 'right',
+          onNext: () => {
+            // If none selected, force select 'Up'
+            const inputs = document.querySelectorAll('.radio-row input[type="radio"]');
+            let selected = false;
+            inputs.forEach(i => { if (i.checked) selected = true; });
+            if (!selected && inputs.length > 0) {
+              inputs[0].checked = true;
+              inputs[0].dispatchEvent(new Event('change'));
+              if (typeof evalChoice === 'function') evalChoice(0, 'up');
+            }
+            // Auto-adjust confidence if untouched
+            const el = document.getElementById('confL');
+            if (el && el.value == 50) {
+              el.value = 75;
+              el.dispatchEvent(new Event('input'));
+            }
+          }
+        },
+        {
+          target: '.grid3',
+          title: 'Stage A: Analyze the Charts',
+          content: 'Look at the charts here for all three indices. The central grey line marks 0% (no change). The line graphs show the historical trend over time. **Do not forget to make full decisions for all three!**',
+          placement: 'right'
+        },
+        {
+          target: '.card.panel:nth-of-type(2)', // Stage B panel
+          title: 'Stage B: Assess Market Risk',
+          content: 'How turbulent is the overall market? Drag this slider to indicate your assessment.',
+          placement: 'top',
+          onNext: () => {
+            const el = document.getElementById('ctxRisk');
+            if (el && el.value == 50) {
+              el.value = 65;
+              el.dispatchEvent(new Event('input'));
+            }
+          }
+        },
+        {
+          target: '.card.panel:nth-of-type(3)', // Stage C panel
+          title: 'Stage C: Portfolio Allocation',
+          content: 'Drag the sliders to adjust your allocations. The percentages will automatically balance to 100%.',
+          placement: 'top',
+          onNext: () => {
+            const el = document.getElementById('wL');
+            if (el) {
+              // Force a change to demonstrate functionality
+              el.value = 50;
+              el.dispatchEvent(new Event('input'));
+            }
+          }
+        },
+        {
+          target: '#lockL',
+          title: 'Locking Allocations',
+          content: 'Click the <b>Lock</b> icon (🔓) to fix an allocation percentage. This allows you to freely adjust the other two sliders without changing the locked one!',
+          placement: 'right',
+          onNext: () => {
+            // Let's not auto-lock, it might confuse the final submit state
+          }
+        },
+        {
+          target: '#submitTrial',
+          title: 'Finalize Trial',
+          content: 'Once you are satisfied with all your choices, click here to submit your decisions for this round.',
+          placement: 'top',
+          onNext: () => {
+            // We don't auto-submit the trial just to be safe, or we let them click it manually as the tour finishes.
+          }
+        }
+      ];
+
+      const tour = new TourGuide(steps, () => {
+        console.log("Tour completed. Reloading to clear automated inputs...");
+        // Set flag BEFORE reload so the reloaded page knows to skip tour and auto-start
+        sessionStorage.setItem('fip_tour_seen', 'true');
+        window.location.reload();
+      }, { autoAdvanceSec: 10 });
+
+      // Show tour on first visit; after tour completes and reloads, auto-start experiment
+      if (!sessionStorage.getItem('fip_tour_seen')) {
+        tour.start();
+      } else {
+        // Tour was already shown this session — clear the flag for next fresh visit,
+        // then auto-click Start Task to begin the real experiment
+        sessionStorage.removeItem('fip_tour_seen');
+        setTimeout(() => {
+          const btn = document.getElementById('startBtn');
+          if (btn && !btn.disabled) btn.click();
+        }, 500);
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'F1') {
+        e.preventDefault();
+        const panel = document.getElementById('instructionPanel');
+        if (panel) {
+          panel.classList.toggle('hidden');
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Drone Navigation Task</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/tour.css">
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --danger: #EF4444;
+      --background: #F3F4F6;
+      --surface: #FFFFFF;
+      --text-main: #111827;
+      --text-muted: #6B7280;
+      --border: #E5E7EB;
+      --wall: #374151;
+      --drone: #FBBF24;
+      --start: #DBEAFE;
+      --goal: #D1FAE5;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--background);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 16px 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    main {
+      padding: 32px 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #hud-container {
+      background: var(--surface);
+      padding: 16px 24px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    #status {
+      font-weight: 500;
+      color: var(--primary);
+      font-size: 16px;
+    }
+
+    #hud {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 500;
+    }
+
+    .battery {
+      width: 200px;
+      height: 16px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+      position: relative;
+    }
+
+    .battery>div {
+      height: 100%;
+      background: var(--success);
+      width: 100%;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+    }
+
+    #grid {
+      display: grid;
+      gap: 2px;
+      background: var(--border);
+      border: 4px solid var(--surface);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .cell {
+      background: var(--surface);
+      box-sizing: border-box;
+      transition: background-color 0.1s;
+    }
+
+    @keyframes shake {
+      0% {
+        transform: translate(1px, 1px) rotate(0deg);
+      }
+
+      10% {
+        transform: translate(-1px, -2px) rotate(-1deg);
+      }
+
+      20% {
+        transform: translate(-3px, 0px) rotate(1deg);
+      }
+
+      30% {
+        transform: translate(3px, 2px) rotate(0deg);
+      }
+
+      40% {
+        transform: translate(1px, -1px) rotate(1deg);
+      }
+
+      50% {
+        transform: translate(-1px, 2px) rotate(-1deg);
+      }
+
+      60% {
+        transform: translate(-3px, 1px) rotate(0deg);
+      }
+
+      70% {
+        transform: translate(3px, 1px) rotate(-1deg);
+      }
+
+      80% {
+        transform: translate(-1px, -1px) rotate(1deg);
+      }
+
+      90% {
+        transform: translate(1px, 2px) rotate(0deg);
+      }
+
+      100% {
+        transform: translate(1px, -2px) rotate(-1deg);
+      }
+    }
+
+    .shake {
+      animation: shake 0.3s cubic-bezier(.36, .07, .19, .97) both;
+      border-color: var(--danger) !important;
+    }
+
+    .wall {
+      background: var(--wall);
+    }
+
+    .start {
+      background: var(--start);
+    }
+
+    .goal {
+      background: var(--goal);
+    }
+
+    .agent {
+      background: var(--drone);
+      border: 3px solid #D97706;
+      border-radius: 4px;
+      transform: scale(0.9);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    button {
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: none;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #F9FAFB;
+      border-color: #D1D5DB;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      background: var(--text-muted);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Modals Overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-card {
+      background: var(--surface);
+      width: 90vw;
+      max-width: 1400px;
+      height: 85vh;
+      margin: auto;
+      padding: 32px;
+      border-radius: var(--radius);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transform: translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tutorial-slide {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tutorial-slide>div:last-of-type {
+      flex: 1;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0);
+    }
+
+    .modal-card h2 {
+      margin: 0 0 16px 0;
+      color: var(--text-main);
+    }
+
+    .modal-card p {
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    /* Survey Slider adjustments */
+    .survey-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: -6px;
+      margin-bottom: 16px;
+    }
+
+    input[type=range] {
+      width: 100%;
+      margin: 16px 0;
+      accent-color: var(--primary);
+    }
+
+    /* Controls form hidden by default */
+    #controls {
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+      width: 100%;
+      background: var(--surface);
+      padding: 24px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .ctl {
+      padding: 12px;
+      background: var(--background);
+      border-radius: 8px;
+    }
+
+    .ctl h4 {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+    }
+
+    .rowline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .val {
+      min-width: 40px;
+      text-align: right;
+      font-family: monospace;
+    }
+
+    /* Instruction Side-Panel */
+    .instruction-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 300px;
+      height: 100vh;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      box-shadow: -4px 0 15px rgba(0, 0, 0, 0.05);
+      padding: 24px;
+      z-index: 40;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+    }
+
+    .instruction-panel.hidden {
+      transform: translateX(100%);
+    }
+
+    .instruction-panel h3 {
+      margin-top: 0;
+      color: var(--text-main);
+      font-size: 18px;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+
+    .instruction-panel ol {
+      padding-left: 20px;
+      color: var(--text-main);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .instruction-panel li {
+      margin-bottom: 12px;
+    }
+
+    .instruction-panel .f1-hint {
+      display: inline-block;
+      margin-top: 24px;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: var(--background);
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Instruction Side-Panel -->
+  <div id="instructionPanel" class="instruction-panel">
+    <h3>Task Instructions</h3>
+    <ol>
+      <li><strong>Navigate the Drone:</strong> Use your keyboard's <strong>Arrow Keys</strong> (↑, ↓, ←, →) to move the
+        orange drone.</li>
+      <li><strong>Avoid Walls:</strong> Do not crash into the dark grey walls, as this will deplete your battery.</li>
+      <li><strong>Reach the Goal:</strong> Guide the drone to the green goal square before time runs out.</li>
+      <li><strong>Survey:</strong> Once you reach the goal, a survey modal will appear. Rate your belief about the
+        current flight conditions.</li>
+      <li><strong>Confirm:</strong> Click the "Confirm Rating" button in the survey to submit your data and proceed to
+        the next trial.</li>
+    </ol>
+    <div class="f1-hint">
+      💡 Press <strong>F1</strong> anytime to hide or show this panel.
+    </div>
+  </div>
+
+  <header>
+    <h1>Drone Navigation Task</h1>
+    <a href="../index.html" style="text-decoration:none;">
+      <button class="btn-secondary" style="padding: 8px 16px; font-size: 14px;">Exit</button>
+    </a>
+  </header>
+
+  <main>
+    <div id="hud-container">
+      <div id="status">Press "Start" to begin the trials.</div>
+      <div id="hud">Waiting to start...</div>
+    </div>
+
+    <div id="grid"></div>
+
+    <div class="toolbar">
+      <button id="startBtn" class="btn-primary">Start Experiment</button>
+      <button id="downloadBtn" class="btn-secondary" style="display:none;">Download Backup (JSON)</button>
+    </div>
+
+    <!-- Hidden admin controls -->
+    <div id="controls">
+      <div class="ctl">
+        <h4>Trial & Grid</h4>
+        <div class="rowline"><label>Max steps</label><input id="ctl_max_steps" type="range" min="10" max="200" step="5"
+            value="100">
+          <div class="val"><span id="val_max_steps">100</span></div>
+        </div>
+        <div class="rowline"><label>Grid columns</label><input id="ctl_cols" type="range" min="12" max="30" step="1"
+            value="20">
+          <div class="val"><span id="val_cols">20</span></div>
+        </div>
+        <div class="rowline"><label>Trials/Block</label><input id="ctl_trials" type="number" min="1" max="50" value="5"
+            style="width:60px; padding:4px;"></div>
+      </div>
+      <div class="ctl">
+        <h4>Battery</h4>
+        <div class="rowline"><label>Drain per step</label><input id="ctl_drain_step" type="range" min="0.5" max="4.0"
+            step="0.1" value="1.0">
+          <div class="val"><span id="val_drain_step">1.0</span></div>
+        </div>
+        <div class="rowline"><label>Drain collision</label><input id="ctl_drain_coll" type="range" min="0" max="12"
+            step="0.5" value="2.0">
+          <div class="val"><span id="val_drain_coll">2.0</span></div>
+        </div>
+        <div class="rowline"><label>Urgency extra</label><input id="ctl_urgency" type="range" min="0.0" max="2.0"
+            step="0.1" value="0.5">
+          <div class="val"><span id="val_urgency">0.5</span></div>
+        </div>
+      </div>
+      <div class="ctl">
+        <h4>Wind</h4>
+        <div class="rowline"><label>Vol (low)</label><input id="ctl_vol_low" type="range" min="0.0" max="0.8"
+            step="0.01" value="0.2">
+          <div class="val"><span id="val_vol_low">0.2</span></div>
+        </div>
+        <div class="rowline"><label>Vol (high)</label><input id="ctl_vol_high" type="range" min="0.0" max="0.8"
+            step="0.01" value="0.2">
+          <div class="val"><span id="val_vol_high">0.2</span></div>
+        </div>
+        <div class="rowline"><label>Gust rate</label><input id="ctl_gust_rate" type="range" min="0.0" max="0.8"
+            step="0.01" value="0.2">
+          <div class="val"><span id="val_gust_rate">0.2</span></div>
+        </div>
+        <div class="rowline"><label>Bias</label><input id="ctl_bias" type="range" min="0.0" max="0.5" step="0.01"
+            value="0.2">
+          <div class="val"><span id="val_bias">0.2</span></div>
+        </div>
+      </div>
+      <div class="ctl">
+        <h4>Map Difficulty</h4>
+        <div class="rowline"><label>Dense prob</label><input id="ctl_dense" type="range" min="0.05" max="0.4"
+            step="0.01" value="0.2">
+          <div class="val"><span id="val_dense">0.2</span></div>
+        </div>
+        <div class="rowline"><label>Sparse prob</label><input id="ctl_sparse" type="range" min="0.02" max="0.3"
+            step="0.01" value="0.2">
+          <div class="val"><span id="val_sparse">0.2</span></div>
+        </div>
+        <div class="rowline"><label>Corr keep</label><input id="ctl_corr_keep" type="range" min="0.00" max="1.0"
+            step="0.01" value="0.75">
+          <div class="val"><span id="val_corr_keep">0.75</span></div>
+        </div>
+      </div>
+      <div class="ctl">
+        <h4>Drift Settings</h4>
+        <div class="rowline"><label>Drift Range</label><input id="ctl_drift_range" type="range" min="0" max="5" step="1"
+            value="3">
+          <div class="val"><span id="val_drift_range">3</span></div>
+        </div>
+        <div class="rowline"><label>Drift Prob</label><input id="ctl_drift_prob" type="range" min="0.0" max="1.0"
+            step="0.05" value="0.3">
+          <div class="val"><span id="val_drift_prob">0.3</span></div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- Survey Modal -->
+    <div id="surveyModal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="tutorial-slide" style="display:flex; flex-direction:column; min-height: 350px;">
+          <h2 id="surveyReason" style="font-size: 28px; margin-bottom: 24px; color: var(--primary);">Trial Ended</h2>
+          <p style="font-size: 18px; line-height: 1.6; margin-bottom: 32px;">Please rate your belief about the current
+            flight conditions. How turbulent or risky did this flight feel?</p>
+          <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+            <input type="range" id="beliefSlider" min="0" max="100" value="50" style="margin-bottom: 24px;">
+            <div class="survey-labels"
+              style="display:flex; justify-content:space-between; font-size:16px; color:var(--text-muted); margin-bottom: 32px;">
+              <span>0% (Safe)</span>
+              <span style="font-weight:bold; color:var(--primary); font-size:24px;" id="beliefVal">50</span>
+              <span>100% (Turbulent/Risky)</span>
+            </div>
+            <div id="surveyTimerDisplay"
+              style="text-align:center; color:var(--danger); font-weight:bold; font-size:18px;">Time remaining: 10s
+            </div>
+          </div>
+          <div style="text-align:right; margin-top:32px;">
+            <button id="okSurvey" class="btn-primary" disabled style="padding: 12px 24px; font-size: 16px;">Confirm
+              Rating</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Task Complete Modal -->
+    <div id="completeModal" class="modal-overlay">
+      <div class="modal-card" style="text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 16px;">🏁</div>
+        <h2>Experiment Complete!</h2>
+        <p>Thank you for completing the Drone Navigation task. Your flight logs have been recorded.</p>
+        <div id="saveStatus" style="font-weight:600; color:var(--primary); margin:24px 0;">Saving to database...</div>
+        <div id="waitMsg" style="color:var(--text-muted); font-size:14px; margin-top:16px;">
+          Please do not close this window until the save is complete.
+        </div>
+        <a href="../index.html" id="returnBtn" style="text-decoration:none; display:none; margin-top:16px;">
+          <button class="btn-secondary">Return to Main Menu</button>
+        </a>
+        <div id="autoReturnMsg" style="display:none; margin-top:12px; color:var(--text-muted); font-size:14px;"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="../assets/subject-id.js"></script>
+  <script src="../assets/stage-hint.js"></script>
+  <script src="../assets/tour.js?v=2.0"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/driver_layers_v6.js?v=10.0"></script>
+  <script>
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'F1') {
+        e.preventDefault();
+        const panel = document.getElementById('instructionPanel');
+        if (panel) {
+          panel.classList.toggle('hidden');
+        }
+      }
+    });
+  </script>
+  <script>
+    // Initialize Tour
+    document.addEventListener("DOMContentLoaded", () => {
+      // The new guided practice tour
+      const steps = [
+        {
+          target: '#startBtn',
+          title: 'Welcome to Drone Navigation',
+          content: 'Click <b>Start Experiment</b> to begin. We will start with a short, hands-on practice flight!',
+          placement: 'bottom',
+          onNext: () => {
+            const btn = document.getElementById('startBtn');
+            if (btn && !btn.disabled) btn.click();
+          }
+        },
+        {
+          target: '#grid',
+          title: 'Practice Flight: Controls & Collision',
+          content: '<b>Move the drone using the Arrow Keys.</b> Every move drains a little battery. <i>Try purposely bumping into a wall</i> (dark squares) to feel the bounce/shake and notice the extra battery drain! (No Next button here, you must crash once to proceed!)',
+          placement: 'bottom',
+          hideNext: true
+        },
+        {
+          target: '#grid',
+          title: 'Practice Flight: Reaching the Goal',
+          content: 'Ouch! Collisions drain a lot of battery. Now, I have teleported you near the exit. <b>Fly right into the green goal square!</b>',
+          placement: 'bottom',
+          hideNext: true
+        },
+        {
+          target: '.survey-labels', // Will point roughly to the slider
+          title: 'Trial Feedback',
+          content: 'Great flying! At the end of each round, we ask you to rate the risk/turbulence. <b>Please drag the slider now to register your feeling</b> and then click <b>Confirm Rating</b>.',
+          placement: 'top',
+          hideNext: true
+        }
+      ];
+
+      const tourTimeout = (window.APP_CONFIG && window.APP_CONFIG.timeout) || {};
+      window.dsbTour = new TourGuide(steps, () => {
+        console.log("Practice Tour completed");
+      }, { autoAdvanceSec: tourTimeout.tour_auto_advance_sec || 15 });
+      window.dsbTour.start();
+    });
+
+    // Wire slider value labels for controls
+    const pairs = [
+      ['ctl_max_steps', 'val_max_steps'],
+      ['ctl_cols', 'val_cols'],
+      ['ctl_drain_step', 'val_drain_step'],
+      ['ctl_drain_coll', 'val_drain_coll'],
+      ['ctl_urgency', 'val_urgency'],
+      ['ctl_vol_low', 'val_vol_low'],
+      ['ctl_vol_high', 'val_vol_high'],
+      ['ctl_gust_rate', 'val_gust_rate'],
+      ['ctl_bias', 'val_bias'],
+      ['ctl_dense', 'val_dense'],
+      ['ctl_sparse', 'val_sparse'],
+      ['ctl_corr_keep', 'val_corr_keep'],
+      ['ctl_drift_range', 'val_drift_range'],
+      ['ctl_drift_prob', 'val_drift_prob'],
+    ];
+    pairs.forEach(([i, v]) => {
+      const el = document.getElementById(i);
+      const out = document.getElementById(v);
+      if (el && out) {
+        const fmt = (x) => {
+          const f = parseFloat(x);
+          return Math.abs(f - Math.round(f)) < 1e-6 ? String(Math.round(f)) : String(f);
+        };
+        el.addEventListener('input', () => out.textContent = fmt(el.value));
+        out.textContent = fmt(el.value);
+      }
+    });
+  </script>
+</body>
+
+</html>

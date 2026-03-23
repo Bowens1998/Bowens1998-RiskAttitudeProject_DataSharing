@@ -1,0 +1,1001 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Emergency Triage Task</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/tour.css">
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --success: #10B981;
+      --warning: #FBBF24;
+      --danger: #EF4444;
+      --info: #0EA5E9;
+      --background: #F3F4F6;
+      --surface: #FFFFFF;
+      --text-main: #111827;
+      --text-muted: #6B7280;
+      --border: #E5E7EB;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      color: var(--text-main);
+      background: var(--background);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 16px 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    header .title {
+      font-weight: 700;
+      font-size: 20px;
+    }
+
+    main {
+      padding: 32px 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+      flex-grow: 1;
+    }
+
+    #toolbar {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #F9FAFB;
+      border-color: #D1D5DB;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    button:disabled,
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: var(--border);
+      color: var(--text-muted);
+      box-shadow: none;
+      transform: none;
+      border-color: transparent;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel h3 {
+      margin: 0 0 16px 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #EEF2FF;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .tooltip {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+      margin-left: 6px;
+      cursor: help;
+    }
+
+    .tooltip::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: 150%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111827;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: pre;
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 100;
+      line-height: 1.4;
+      pointer-events: none;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      font-weight: normal;
+    }
+
+    .tooltip:hover::after {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(-4px);
+    }
+
+    .kpi {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .kpi div {
+      background: var(--background);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+
+    .kpi b,
+    .kpi span {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    #status {
+      text-align: center;
+      font-weight: 500;
+      color: var(--primary);
+      margin-bottom: 16px;
+      font-size: 16px;
+    }
+
+    #log {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      color: var(--text-main);
+      background: var(--background);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 13px;
+      white-space: pre-wrap;
+      min-height: 80px;
+      max-height: 250px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column-reverse;
+    }
+
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 0;
+    }
+
+    legend {
+      font-weight: 600;
+      color: var(--text-main);
+      padding: 0 8px;
+    }
+
+    .dx-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    .dx-list label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 16px 0;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--primary);
+    }
+
+    select,
+    input[type=number],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .banner {
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+      color: #92400E;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-card {
+      background: var(--surface);
+      width: 90vw;
+      max-width: 1400px;
+      height: 85vh;
+      margin: auto;
+      padding: 32px;
+      border-radius: var(--radius);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transform: translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tutorial-slide {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tutorial-slide>div:last-of-type {
+      flex: 1;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0);
+    }
+
+    .modal-card h2,
+    .modal-card h3 {
+      margin: 0 0 16px 0;
+      color: var(--text-main);
+    }
+
+    .modal-card p {
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    /* Instruction Side-Panel */
+    .instruction-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 300px;
+      height: 100vh;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      box-shadow: -4px 0 15px rgba(0, 0, 0, 0.05);
+      padding: 24px;
+      z-index: 40;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+    }
+
+    .instruction-panel.hidden {
+      transform: translateX(100%);
+    }
+
+    .instruction-panel h3 {
+      margin-top: 0;
+      color: var(--text-main);
+      font-size: 18px;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+
+    .instruction-panel ol {
+      padding-left: 20px;
+      color: var(--text-main);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .instruction-panel li {
+      margin-bottom: 12px;
+    }
+
+    .instruction-panel .f1-hint {
+      display: inline-block;
+      margin-top: 24px;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: var(--background);
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Instruction Side-Panel -->
+  <div id="instructionPanel" class="instruction-panel">
+    <h3>Task Instructions</h3>
+    <ol>
+      <li><strong>Review Patient:</strong> Read the Profile, Vitals, and History of the patient as they emerge.</li>
+      <li><strong>Advance Time:</strong> Click "Next Tick" (or press Spacebar) to reveal more information. Use this
+        carefully to balance speed vs. certainty.</li>
+      <li><strong>Finalize:</strong> Once you have enough information, click "Finalize Triage" (or press 'F').</li>
+      <li><strong>Assign ESI & Context:</strong> In the popup modal, assign the correct Emergency Severity Index (Level
+        1-5). Don't forget to slide the "Contextual Belief" slider below to indicate your perception of case severity.
+      </li>
+      <li><strong>Confirm:</strong> Click "Confirm ESI" to submit your data and start the next trial.</li>
+    </ol>
+    <div class="f1-hint">
+      💡 Press <strong>F1</strong> anytime to hide or show this panel.
+    </div>
+  </div>
+
+  <header>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <span class="title">Emergency Triage Task</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:16px; margin-left:auto;">
+      <span
+        style="background: var(--success); color: white; padding: 6px 12px; border-radius: 999px; font-weight: 600; font-size: 13px;"
+        id="progressIndicator">0/0 finished</span>
+      <a href="../index.html" style="text-decoration:none;"><button class="btn-secondary"
+          style="padding: 6px 16px;">Exit</button></a>
+    </div>
+  </header>
+
+  <main>
+    <div id="status">Press <b>Start</b> to begin. Shortcuts: Space=Next, F=Finalize.</div>
+
+    <div id="toolbar">
+      <button id="startBtn" class="btn-primary">Start Experiment</button>
+      <button id="advanceBtn" class="btn-secondary" disabled>Next Tick (Space)</button>
+      <button id="finalizeBtn" class="btn-primary" disabled>Finalize Triage (F)</button>
+      <button id="restartBtn" class="btn-secondary" disabled style="display:none;">Restart Trial (R)</button>
+      <button id="downloadBtn" class="btn-secondary" disabled style="display:none;">Download Backup Data</button>
+    </div>
+
+    <!-- Hidden Controls -->
+    <div class="card" id="controls_panel" style="display:none; margin-bottom: 24px;">
+      <h3>Runtime Controls</h3>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+        <div><label class="muted">Prevalence</label><select id="ctl_prevalence">
+            <option>low</option>
+            <option>high</option>
+          </select></div>
+        <div><label class="muted">Measurement noise</label><select id="ctl_noise">
+            <option>low</option>
+            <option>high</option>
+          </select></div>
+        <div><label class="muted">Deterioration volatility</label><select id="ctl_vol">
+            <option>low</option>
+            <option>high</option>
+          </select></div>
+        <div><label class="muted">Max ticks per case</label><input id="ctl_maxticks" type="number" min="6" max="20"
+            value="12"></div>
+        <div><label class="muted">Trials per block</label><input id="ctl_trials" type="number" min="1" max="24"
+            value="5"></div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 24px; margin-bottom: 24px;">
+      <div class="card panel">
+        <h3>Patient Profile</h3>
+        <div class="kpi">
+          <div>Age: <b id="Age">—</b></div>
+          <div>Comorbidities<span class="tooltip" data-tip="Other diseases the patient already has">?</span>: <b
+              id="Comorbid">—</b></div>
+          <div>Complaint<span class="tooltip" data-tip="The main reason the patient came to the ER">?</span>: <b
+              id="CC">—</b></div>
+          <div style="display:none">True Dx: <b id="TrueDx">—</b></div> <!-- Hidden TrueDx to avoid participant bias -->
+        </div>
+      </div>
+
+      <div id="vitalsAndFactual">
+        <div class="card panel">
+          <h3>Vitals & Trends <span id="tickLbl" class="pill" style="float:right;"></span></h3>
+          <div class="kpi">
+            <div>HR<span class="tooltip" data-tip="Heart Rate&#10;Normal: 60-100 bpm">?</span>: <b id="HR">—</b></div>
+            <div>BP<span class="tooltip" data-tip="Blood Pressure&#10;Normal: ~120/80 mmHg">?</span>: <b id="BP">—</b>
+            </div>
+            <div>RR<span class="tooltip" data-tip="Respiratory Rate&#10;Normal: 12-20 breaths/min">?</span>: <b
+                id="RR">—</b></div>
+            <div>SpO2<span class="tooltip" data-tip="Oxygen Saturation&#10;Normal: 95-100%">?</span>: <b id="SpO2">—</b>
+            </div>
+            <div>Temp<span class="tooltip" data-tip="Body Temperature&#10;Normal: 36.5-37.5°C">?</span>: <b
+                id="Temp">—</b></div>
+            <div>Mental<span class="tooltip"
+                data-tip="AVPU Scale&#10;A: Alert, V: Verbal&#10;P: Pain, U: Unresponsive">?</span>: <b id="AVPU">—</b>
+            </div>
+          </div>
+          <div class="kpi">
+            <div>Trend<span class="tooltip"
+                data-tip="How the patient's condition is changing over the short term">?</span>: <span
+                id="Trend">—</span>
+            </div>
+            <div>Observation<span class="tooltip" data-tip="Visual signs or symptoms noticed by the nurse">?</span>:
+              <span id="Flags">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card panel">
+          <h3>Factual Belief</h3>
+          <fieldset>
+            <legend>Diagnosis Prediction</legend>
+            <div class="hint" style="margin-top:0;">Select the most likely diagnosis based on current vitals.</div>
+            <div id="dxList" class="dx-list"></div>
+          </fieldset>
+        </div>
+      </div> <!-- end vitalsAndFactual -->
+      <div class="card panel" id="ctxBeliefPanel">
+        <h3>Contextual Belief</h3>
+        <div class="banner" id="ctxBanner" style="display:none;">Update the risk slider based on recent patient changes.
+        </div>
+        <fieldset>
+          <legend>Overall Case Risk</legend>
+          <div class="slider-wrap">
+            <span>Stable</span>
+            <input id="ctxSlider" type="range" min="0" max="100" value="0">
+            <span>Critical</span>
+          </div>
+          <div class="muted" style="text-align:center;">Current Assessment: <b id="ctxVal"
+              style="color:var(--primary);">0</b>/100</div>
+        </fieldset>
+      </div>
+    </div>
+
+    <div class="card panel">
+      <h3>Event Log</h3>
+      <div id="log">—</div>
+    </div>
+  </main>
+
+  <!-- ESI Modal -->
+  <div id="modalBg" class="modal-overlay"> <!-- Originally used modalBg ID -->
+    <div class="modal-card">
+      <h3>Assign Final ESI Triage Level</h3>
+      <p>Based on the complete case progression, assign an Emergency Severity Index (ESI) level:</p>
+
+      <select id="esiSelect" style="margin-bottom:16px;">
+        <option value="1">1 — Immediate life-saving intervention</option>
+        <option value="2" selected>2 — High-risk / emergent</option>
+        <option value="3">3 — Stable, 2+ resources needed</option>
+        <option value="4">4 — Stable, 1 resource needed</option>
+        <option value="5">5 — Stable, no resources</option>
+      </select>
+
+      <div class="banner" id="ctxReqHint" style="display:none; margin-top:0;">
+        Tip: You made very few risk assessments. Consider adjusting the risk slider before confirming.
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:12px;">
+        <button id="cancelESI" class="btn-secondary">Cancel</button>
+        <button id="confirmESI" class="btn-primary">Confirm ESI</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Complete Modal -->
+  <div id="completeModal" class="modal-overlay">
+    <div class="modal-card" style="text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 16px;">🏥</div>
+      <h2>Shift Complete!</h2>
+      <p>Thank you for completing the Emergency Triage task. Your decisions have been recorded.</p>
+      <div id="saveStatus" style="font-weight:600; color:var(--primary); margin:24px 0;">Saving to database...</div>
+      <div id="waitMsg" style="color:var(--text-muted); font-size:14px; margin-top:16px;">
+        Please do not close this window until the save is complete.
+      </div>
+      <a href="../index.html" id="returnBtn" style="text-decoration:none; display:none; margin-top:16px;">
+        <button class="btn-secondary">Return to Main Menu</button>
+      </a>
+      <div id="autoReturnMsg" style="display:none; margin-top:12px; color:var(--text-muted); font-size:14px;"></div>
+    </div>
+  </div>
+
+  <script src="../assets/subject-id.js"></script>
+  <script src="../assets/stage-hint.js"></script>
+  <script src="../assets/tour.js?v=2.0"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/driver_tpb_esi_v2_3.js?v=3.0"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const steps = [
+        {
+          target: '#startBtn',
+          title: 'Emergency Triage Task',
+          content: 'Click <b>Start Experiment</b> to receive your first patient.',
+          placement: 'bottom',
+          onNext: () => {
+            const btn = document.getElementById('startBtn');
+            if (btn && !btn.disabled) btn.click();
+          }
+        },
+        {
+          target: '#vitalsAndFactual', // Encompasses the entire Vitals & Trends box
+          title: 'Vitals & Trends',
+          content: 'Watch the patient\'s Heart Rate, Blood Pressure, and other vitals here. These tell you if the patient is stable or deteriorating.',
+          placement: 'bottom'
+        },
+        {
+          target: '#vitalsAndFactual',
+          title: 'Examples: How Vitals Match Diseases',
+          content: `
+            <div id="diseaseExamplesBox" style="width: 550px; background:var(--bg-secondary); padding:20px; border-radius:12px; border:1px solid var(--border); position:relative; min-height: 280px; display:flex; flex-direction:column; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+              
+              <!-- Card 1 -->
+              <div class="disease-card" style="display:block; flex:1;">
+                <h4 style="margin:0 0 16px 0; color:var(--text-main); font-size:24px;">1/6: Respiratory failure</h4>
+                <div style="font-family:monospace; font-size:18px; background:var(--bg-card); padding:16px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); line-height:1.6;">
+                  <span style="color:var(--text-muted);">HR:</span> <b style="color:var(--danger);">125</b> &nbsp;|&nbsp; 
+                  <span style="color:var(--text-muted);">RR:</span> <b style="color:var(--danger);">32</b> &nbsp;|&nbsp; 
+                  <span style="color:var(--text-muted);">SpO2:</span> <b style="color:var(--danger);">88%</b><br>
+                  <span style="color:var(--text-muted);">Obs:</span> <b>Cyanosis (blue lips), intercostal retractions</b>
+                </div>
+                <div style="font-size:18px; color:var(--text-muted); margin-top:12px;">➔ Very high breathing rate (RR&gt;20), dangerously low oxygen (SpO2&lt;90%), cyanosis (blue lips) indicate the lungs are failing.</div>
+                <div style="margin-top:16px; padding:10px 14px; background:rgba(16,185,129,0.15); border-left:4px solid var(--success); border-radius:6px; font-size:16px;">
+                  <b style="color:var(--success);">Factual Belief Diagnosis:</b> &nbsp; Respiratory failure
+                </div>
+              </div>
+
+              <!-- Card 2 -->
+              <div class="disease-card" style="display:none; flex:1;">
+                <h4 style="margin:0 0 16px 0; color:var(--text-main); font-size:24px;">2/6: Cardiac event</h4>
+                <div style="font-family:monospace; font-size:18px; background:var(--bg-card); padding:16px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); line-height:1.6;">
+                  <span style="color:var(--text-muted);">HR:</span> <b style="color:var(--danger);">130</b> &nbsp;|&nbsp; 
+                  <span style="color:var(--text-muted);">BP:</span> <b style="color:var(--danger);">160/100</b> &nbsp;|&nbsp; 
+                  <span style="color:var(--text-muted);">RR:</span> <b style="color:var(--warning);">24</b><br>
+                  <span style="color:var(--text-muted);">Obs:</span> <b>Diaphoresis (heavy sweating), clutching chest</b>
+                </div>
+                <div style="font-size:18px; color:var(--text-muted); margin-top:12px;">➔ Elevated HR and BP with classic chest pain signs (sweating, clutching) are hallmarks of a heart attack.</div>
+                <div style="margin-top:16px; padding:10px 14px; background:rgba(16,185,129,0.15); border-left:4px solid var(--success); border-radius:6px; font-size:16px;">
+                  <b style="color:var(--success);">Factual Belief Diagnosis:</b> &nbsp; Cardiac event
+                </div>
+              </div>
+
+              <!-- Card 3 -->
+              <div class="disease-card" style="display:none; flex:1;">
+                <h4 style="margin:0 0 16px 0; color:var(--text-main); font-size:24px;">3/6: Massive hemorrhage</h4>
+                <div style="font-family:monospace; font-size:18px; background:var(--bg-card); padding:16px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); line-height:1.6;">
+                  <span style="color:var(--text-muted);">HR:</span> <b style="color:var(--danger);">135</b> &nbsp;|&nbsp; 
+                  <span style="color:var(--text-muted);">BP:</span> <b style="color:var(--danger);">85/50</b><br>
+                  <span style="color:var(--text-muted);">Obs:</span> <b>Pale, cool skin, weak and thready pulse</b>
+                </div>
+                <div style="font-size:18px; color:var(--text-muted); margin-top:12px;">➔ Tachycardia (HR&gt;120) with crashing Blood Pressure (BP&lt;90 systolic) indicates severe blood volume loss from internal bleeding.</div>
+                <div style="margin-top:16px; padding:10px 14px; background:rgba(16,185,129,0.15); border-left:4px solid var(--success); border-radius:6px; font-size:16px;">
+                  <b style="color:var(--success);">Factual Belief Diagnosis:</b> &nbsp; Massive hemorrhage
+                </div>
+              </div>
+
+              <!-- Card 4 -->
+              <div class="disease-card" style="display:none; flex:1;">
+                <h4 style="margin:0 0 16px 0; color:var(--text-main); font-size:24px;">4/6: Infection / sepsis</h4>
+                <div style="font-family:monospace; font-size:18px; background:var(--bg-card); padding:16px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); line-height:1.6;">
+                  <span style="color:var(--text-muted);">HR:</span> <b style="color:var(--danger);">120</b> &nbsp;|&nbsp; 
+                  <span style="color:var(--text-muted);">Temp:</span> <b style="color:var(--danger);">39.5°C</b> &nbsp;|&nbsp; 
+                  <span style="color:var(--text-muted);">RR:</span> <b style="color:var(--warning);">26</b><br>
+                  <span style="color:var(--text-muted);">Obs:</span> <b>Flushed skin, rigors (shivering), warm extremities</b>
+                </div>
+                <div style="font-size:18px; color:var(--text-muted); margin-top:12px;">➔ High fever (&gt;38.3°C) combined with elevated HR and RR points to systemic infection spreading through the blood (sepsis).</div>
+                <div style="margin-top:16px; padding:10px 14px; background:rgba(16,185,129,0.15); border-left:4px solid var(--success); border-radius:6px; font-size:16px;">
+                  <b style="color:var(--success);">Factual Belief Diagnosis:</b> &nbsp; Infection / sepsis
+                </div>
+              </div>
+
+              <!-- Card 5 -->
+              <div class="disease-card" style="display:none; flex:1;">
+                <h4 style="margin:0 0 16px 0; color:var(--text-main); font-size:24px;">5/6: Neurological event (stroke-like)</h4>
+                <div style="font-family:monospace; font-size:18px; background:var(--bg-card); padding:16px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); line-height:1.6;">
+                  <span style="color:var(--text-muted);">BP:</span> <b style="color:var(--danger);">185/110</b> &nbsp;|&nbsp; 
+                  <span style="color:var(--text-muted);">Mental:</span> <b style="color:var(--danger);">V (Verbal)</b><br>
+                  <span style="color:var(--text-muted);">Obs:</span> <b>Slurred speech, unilateral facial droop</b>
+                </div>
+                <div style="font-size:18px; color:var(--text-muted); margin-top:12px;">➔ Severely elevated BP with focal neurological deficits (drooping face, slurred speech) and declining mental response suggest a stroke or brain bleed.</div>
+                <div style="margin-top:16px; padding:10px 14px; background:rgba(16,185,129,0.15); border-left:4px solid var(--success); border-radius:6px; font-size:16px;">
+                  <b style="color:var(--success);">Factual Belief Diagnosis:</b> &nbsp; Neurological event (stroke-like)
+                </div>
+              </div>
+
+               <!-- Card 6 -->
+              <div class="disease-card" style="display:none; flex:1;">
+                <h4 style="margin:0 0 16px 0; color:var(--text-main); font-size:24px;">6/6: Stable / no acute condition</h4>
+                <div style="font-family:monospace; font-size:18px; background:var(--bg-card); padding:16px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); line-height:1.6;">
+                  <span style="color:var(--text-muted);">HR:</span> <b style="color:var(--success);">75</b> &nbsp;|&nbsp; 
+                  <span style="color:var(--text-muted);">BP:</span> <b style="color:var(--success);">120/80</b> &nbsp;|&nbsp; 
+                  <span style="color:var(--text-muted);">SpO2:</span> <b style="color:var(--success);">98%</b><br>
+                  <span style="color:var(--text-muted);">Obs:</span> <b>Alert, appears comfortable, no distress</b>
+                </div>
+                <div style="font-size:18px; color:var(--text-muted); margin-top:12px;">➔ All vitals are within normal ranges. The patient's heart rate, blood pressure and oxygen are all green. No immediate threat detected.</div>
+                <div style="margin-top:16px; padding:10px 14px; background:rgba(16,185,129,0.15); border-left:4px solid var(--success); border-radius:6px; font-size:16px;">
+                  <b style="color:var(--success);">Factual Belief Diagnosis:</b> &nbsp; Stable / no acute condition
+                </div>
+              </div>
+
+              <!-- Controls -->
+              <div style="margin-top: 24px; display:flex; justify-content:space-between; align-items:center;">
+                <button id="prevCardBtn" class="btn-primary" style="padding:10px 20px; font-size:16px; background-color:var(--primary); color:#fff; border:none; border-radius:6px; transition:0.3s; opacity:0; pointer-events:none; cursor:not-allowed;">⬅ Previous</button>
+                <button id="nextCardBtn" class="btn-primary" style="padding:10px 20px; font-size:16px; background-color:var(--primary); transition:0.3s; opacity:0.5; cursor:not-allowed;" disabled>Wait ...</button>
+              </div>
+            </div>
+          `,
+          skipDelay: true,
+          placement: 'bottom',
+          onShow: (target, tooltip) => {
+            // Modify tooltip width itself to be larger to fit the box
+            tooltip.style.width = '640px';
+            tooltip.style.maxWidth = '90vw';
+
+            // Custom Tab Logic — runs after renderTooltipContent so DOM is ready
+            setTimeout(() => {
+              // Hide main Next button AFTER it has been re-rendered
+              const nextBtn = document.getElementById('tourNextBtn');
+              if (nextBtn) {
+                nextBtn.style.display = 'none';
+              }
+
+              let currentCardIdx = 0;
+              const cards = tooltip.querySelectorAll('.disease-card');
+              const nextCardBtn = tooltip.querySelector('#nextCardBtn');
+              const prevCardBtn = tooltip.querySelector('#prevCardBtn');
+              if (!cards.length || !nextCardBtn) return;
+
+              let timer = null;
+
+              const updatePrevBtnVisibility = () => {
+                if (currentCardIdx > 0) {
+                  prevCardBtn.style.opacity = '1';
+                  prevCardBtn.style.pointerEvents = 'auto';
+                  prevCardBtn.style.cursor = 'pointer';
+                } else {
+                  prevCardBtn.style.opacity = '0';
+                  prevCardBtn.style.pointerEvents = 'none';
+                }
+              }
+
+              let autoClickTimer = null;
+
+              const startAutoClickCountdown = () => {
+                if (autoClickTimer) clearTimeout(autoClickTimer);
+                autoClickTimer = setTimeout(() => {
+                  if (!nextCardBtn.disabled) nextCardBtn.click();
+                }, 10000);
+              };
+
+              const lockNextFor3Seconds = () => {
+                nextCardBtn.disabled = true;
+                nextCardBtn.style.opacity = '0.5';
+                nextCardBtn.style.cursor = 'not-allowed';
+                let timeLeft = 3;
+                nextCardBtn.innerText = `Reading time... (${timeLeft}s)`;
+                if (autoClickTimer) { clearTimeout(autoClickTimer); autoClickTimer = null; }
+
+                timer = setInterval(() => {
+                  timeLeft--;
+                  if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    nextCardBtn.disabled = false;
+                    nextCardBtn.style.opacity = '1';
+                    nextCardBtn.style.cursor = 'pointer';
+                    nextCardBtn.innerText = currentCardIdx === cards.length - 1 ? 'Finish Examples' : 'Next Example ➔';
+                    startAutoClickCountdown(); // 10s auto-click after lock expires
+                  } else {
+                    nextCardBtn.innerText = `Reading time... (${timeLeft}s)`;
+                  }
+                }, 1000);
+              };
+
+              lockNextFor3Seconds();
+
+              // Handle Next
+              nextCardBtn.addEventListener('click', () => {
+                if (nextCardBtn.disabled) return;
+
+                if (currentCardIdx < cards.length - 1) {
+                  // Hide current, show next
+                  cards[currentCardIdx].style.display = 'none';
+                  currentCardIdx++;
+                  cards[currentCardIdx].style.display = 'block';
+                  updatePrevBtnVisibility();
+
+                  // Re-lock for 3 seconds if we haven't read this specific card
+                  if (timer) clearInterval(timer);
+                  lockNextFor3Seconds();
+                } else {
+                  // Finished all cards! 
+                  if (autoClickTimer) { clearTimeout(autoClickTimer); autoClickTimer = null; }
+                  nextCardBtn.style.display = 'none';
+                  prevCardBtn.style.display = 'none';
+                  cards[currentCardIdx].innerHTML += '<div style="margin-top:20px; color:var(--success); font-weight:bold; font-size:20px;">✓ All examples completed!</div>';
+
+                  // Unlock main Tour Next Button natively
+                  if (nextBtn) {
+                    nextBtn.style.display = 'block';
+                    nextBtn.disabled = false;
+                    nextBtn.style.opacity = '1';
+                    nextBtn.style.cursor = 'pointer';
+                    nextBtn.innerText = 'Next Step';
+                    // Auto-click Next Step after 10s
+                    setTimeout(() => { if (nextBtn) nextBtn.click(); }, 10000);
+                  }
+                }
+              });
+
+              // Handle Previous
+              if (prevCardBtn) {
+                prevCardBtn.addEventListener('click', () => {
+                  if (currentCardIdx > 0) {
+                    if (timer) clearInterval(timer);
+
+                    if (autoClickTimer) { clearTimeout(autoClickTimer); autoClickTimer = null; }
+                    cards[currentCardIdx].style.display = 'none';
+                    currentCardIdx--;
+                    cards[currentCardIdx].style.display = 'block';
+
+                    updatePrevBtnVisibility();
+                    nextCardBtn.disabled = false;
+                    nextCardBtn.style.opacity = '1';
+                    nextCardBtn.style.cursor = 'pointer';
+                    nextCardBtn.innerText = 'Next Example ➔';
+                    startAutoClickCountdown(); // Restart 10s auto-click
+                  }
+                });
+              }
+
+            }, 100);
+          }
+        },
+        {
+          target: '#vitalsAndFactual', // Factual belief panel
+          title: 'Factual Belief: Diagnosis',
+          content: 'Hover over the small <b>?</b> icons if you want to learn more about the typical vitals for each disease. Then select the most fitting diagnosis.',
+          placement: 'right',
+          onNext: () => {
+            const items = document.querySelectorAll('input[name="dx"]'); // Usually radio inputs for dx
+            // Let's try matching specifically by checking if dxList inputs exist
+            const dxInputs = document.querySelectorAll('#dxList input');
+            let hasActive = false;
+            dxInputs.forEach(i => { if (i.checked) hasActive = true; });
+
+            if (!hasActive && dxInputs.length > 0) {
+              dxInputs[0].checked = true;
+              dxInputs[0].dispatchEvent(new Event('change'));
+            } else if (!hasActive) {
+              // Secondary fallback in case the HTML structure uses labels directly
+              const labels = document.querySelectorAll('.dx-list label');
+              if (labels.length > 0) labels[0].click();
+            }
+          }
+        },
+        {
+          target: '#advanceBtn',
+          title: 'Progress Time',
+          content: 'You can click <b>Next Tick</b> or press the <b>Spacebar</b> to advance time and observe how the vitals change. You can start diagnosis whenever you feel you are ready. When the time limit is reached, the button will be disabled — then you must update the Contextual Belief slider before finalizing the ESI.',
+          placement: 'bottom',
+          onShow: (target, tooltip) => {
+            // Monitor if advanceBtn gets disabled by tick cap during tour
+            // If user exhausts tick limit, prevent the driver from auto-opening ESI
+            // Instead disable the button and let user click Next Step
+            const monitor = setInterval(() => {
+              const btn = document.getElementById('advanceBtn');
+              if (btn && btn.disabled) {
+                clearInterval(monitor);
+                // Prevent tour tick guard from interfering
+                window.tpbAutoTicks = 999;
+              }
+            }, 300);
+            // Store monitor id so we can clear if step exits
+            tooltip._tickMonitor = monitor;
+          },
+          onNext: () => {
+            if (typeof window.tpbAutoTicks === 'undefined') window.tpbAutoTicks = 0;
+            if (window.tpbAutoTicks < 3) {
+              const btn = document.getElementById('advanceBtn');
+              if (btn && !btn.disabled) {
+                btn.click();
+                window.tpbAutoTicks++;
+              }
+            }
+          }
+        },
+        {
+          target: '#ctxBeliefPanel', // Encompasses the entire Contextual Belief box
+          title: 'Contextual Belief: Risk',
+          content: 'If you feel the patient is getting worse, <b>drag this slider</b> to raise the risk alert level.',
+          placement: 'bottom',
+          onNext: () => {
+            const el = document.getElementById('ctxSlider');
+            if (el && el.value == 0) { // Default is 0 in TPB
+              el.value = 60;
+              el.dispatchEvent(new Event('input'));
+            }
+          }
+        },
+        {
+          target: '#finalizeBtn',
+          title: 'Finalize Triage',
+          content: 'Once you are confident, click here or press <b>F</b> to assign the final severity level.',
+          placement: 'bottom',
+          onNext: () => {
+            // Let the next step specifically open the ESI via onShow, so we don't necessarily need to trigger click here.
+          }
+        },
+        {
+          target: '#modalBg',
+          title: 'ESI Levels',
+          content: 'You will assign an Emergency Severity Index. Level 1 is the most urgent (immediate life-saving intervention), and Level 5 is the least urgent (stable, no resources needed). Select a level from the dropdown, then click <b>Confirm ESI</b>.',
+          placement: 'bottom',
+          onShow: () => {
+            // Open modal automatically to show ESI dropdown during tour
+            const modal = document.getElementById('modalBg');
+            if (modal) modal.classList.add('active');
+
+            // When user clicks Confirm ESI inside the modal, auto-complete the tour
+            // so the overlay doesn't stay darkening the screen while awaiting "Start Experiment"
+            const confirmBtn = document.getElementById('confirmESI');
+            if (confirmBtn) {
+              confirmBtn.addEventListener('click', () => {
+                setTimeout(() => {
+                  const nextBtn = document.getElementById('tourNextBtn');
+                  if (nextBtn) nextBtn.click();
+                }, 400);
+              }, { once: true });
+            }
+          }
+        }
+      ];
+
+      const tour = new TourGuide(steps, () => {
+        console.log("Tour completed. Reloading to clear automated inputs...");
+        // Ensure modal is closed
+        const modal = document.getElementById('modalBg');
+        if (modal) modal.classList.remove('active');
+        // Mark tour as seen so it doesn't loop
+        sessionStorage.setItem('tpb_tour_seen', 'true');
+        // Reload page to reset states
+        window.location.reload();
+      }, { autoAdvanceSec: 10 });
+
+      // Show tour on first visit; after tour completes and reloads, auto-start experiment
+      if (!sessionStorage.getItem('tpb_tour_seen')) {
+        tour.start();
+      } else {
+        // Tour was already shown this session — clear the flag for next fresh visit,
+        // then auto-click Start Task to begin the real experiment
+        sessionStorage.removeItem('tpb_tour_seen');
+        setTimeout(() => {
+          const btn = document.getElementById('startBtn');
+          if (btn && !btn.disabled) btn.click();
+        }, 500);
+      }
+    });
+    document.getElementById('cancelESI').addEventListener('click', () => {
+      document.getElementById('modalBg').classList.remove('active');
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'F1') {
+        e.preventDefault();
+        const panel = document.getElementById('instructionPanel');
+        if (panel) {
+          panel.classList.toggle('hidden');
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
