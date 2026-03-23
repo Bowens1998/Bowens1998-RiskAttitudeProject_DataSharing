@@ -40,4 +40,4 @@ Contains dynamic, interactive resources and the final summary markdown report.
 1. To view the final results, read **`InteractiveVisualization/v3_human_comparison_report.md`** or open **`InteractiveVisualization/InteractiveWeb/index.html`**.
 2. To regenerate the static plots, ensure you have Python installed with `pandas`, `seaborn`, `matplotlib`, and `rpy2` (along with an R installation containing the `ordinal` package), then run the scripts within `Plotting_Code_And_Data`.
 
-*Note: All project files have been sanitized and anonymized. Seed traces have been removed to ensure blind review compliance where necessary.*
+*Note: All project files have been sanitized and anonymized.*
